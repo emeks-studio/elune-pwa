@@ -2,8 +2,18 @@
 PWA for elune player
 
 ## Development
-### nix
-TODO
+
+### nix (development env)
+
+Install [nix](https://nixos.org/download.html#download-nix) and turn on [flakes](https://nixos.wiki/wiki/Flakes).
+
+```
+nix develop
+```
+^ Enters the development shell using nix.
+
+### `$ npm intall`
+Install the libraries required.
 
 ### `$ npm start`
 Runs the app in the development mode.\
