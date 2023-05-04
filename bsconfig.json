@@ -1,0 +1,29 @@
+{
+    "name": "elune-pwa",
+    "bs-dependencies": [
+      "@rescript/react",
+      "@ryyppy/rescript-promise"
+    ],
+    "bsc-flags": [
+      "-bs-super-errors"
+    ],
+    "namespace": true,
+    "package-specs": [
+      {
+        "in-source": true,
+        "module": "es6"
+      }
+    ],
+    "ppx-flags": [],
+    "reason": {
+      "react-jsx": 3
+    },
+    "refmt": 3,
+    "sources": [
+      {
+        "dir": "src",
+        "subdirs": true
+      }
+    ],
+    "suffix": ".bs.js"
+  }

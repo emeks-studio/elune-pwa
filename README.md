@@ -22,6 +22,9 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
+### `$ npm run re:dev`
+Runs rescript compiler against src/ and keep watching .res file changes
+
 ## Build
 ### `$ npm run build`
 Builds the app for production to the `build\` folder.\
