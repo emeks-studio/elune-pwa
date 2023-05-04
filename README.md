@@ -12,9 +12,6 @@ nix develop
 ```
 ^ Enters the development shell using nix.
 
-### `$ npm intall`
-Install the libraries required.
-
 ### `$ npm start`
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.

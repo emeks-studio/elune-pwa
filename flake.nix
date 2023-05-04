@@ -40,6 +40,7 @@
               mkdir -p "$modules"
               rm -rf "$modules/rescript"
               ln -s ${rescript} "$modules/rescript"
+              npm install
               export PATH="${rescript}:$modules/.bin:$PATH"
               export PATH="${NPM_CONFIG_PREFIX}/bin:$PATH"
             '';
