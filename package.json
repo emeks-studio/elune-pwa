@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@rescript/react": "0.11.0",
+    "@ryyppy/rescript-promise": "2.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-scripts": "5.0.1",
@@ -26,7 +28,9 @@
     "eject": "react-scripts eject",
     "prepare": "husky install",
     "pre-commit": "lint-staged --allow-empty",
-    "prettier": "prettier --config \".prettierrc\" --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss}\""
+    "prettier": "prettier --config \".prettierrc\" --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss}\"",
+    "re:build": "rescript build",
+    "re:dev": "rescript build -w"
   },
   "eslintConfig": {
     "extends": "react-app"

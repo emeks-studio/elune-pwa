@@ -2,8 +2,15 @@
 PWA for elune player
 
 ## Development
-### nix
-TODO
+
+### nix (development env)
+
+Install [nix](https://nixos.org/download.html#download-nix) and turn on [flakes](https://nixos.wiki/wiki/Flakes).
+
+```
+nix develop
+```
+^ Enters the development shell using nix.
 
 ### `$ npm start`
 Runs the app in the development mode.\
@@ -11,6 +18,9 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
+
+### `$ npm run re:dev`
+Runs rescript compiler against src/ and keep watching .res file changes
 
 ## Build
 ### `$ npm run build`
