@@ -3,8 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@rescript/react": "0.11.0",
-    "@ryyppy/rescript-promise": "2.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-scripts": "5.0.1",
@@ -50,7 +48,9 @@
   "devDependencies": {
     "husky": "8.0.3",
     "lint-staged": "13.2.2",
-    "prettier": "2.8.8"
+    "prettier": "2.8.8",
+    "@rescript/react": "0.11.0",
+    "@ryyppy/rescript-promise": "2.1.0"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx,json,css,scss}": [
