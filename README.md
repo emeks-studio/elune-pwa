@@ -8,9 +8,13 @@ PWA for elune player
 Install [nix](https://nixos.org/download.html#download-nix) and turn on [flakes](https://nixos.wiki/wiki/Flakes).
 
 ```
-nix develop
+nix develop --impure
 ```
-^ Enters the development shell using nix.
+^ Enters the development shell using nix. Obs: Impure flag is because for NixOS environments,
+we need to enable nix-ld `programs.nix-ld.enable = true;` in configuration.nix in order to fix
+rescript language server calls to dynamic linked libraries.
+
+
 
 ### `$ npm start`
 Runs the app in the development mode.\

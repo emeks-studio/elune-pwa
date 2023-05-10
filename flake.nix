@@ -20,14 +20,14 @@
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         pkgs = import nixpkgs { inherit system; };
+        lib = pkgs.lib;
         stdenv = pkgs.stdenv;
         nodejs = pkgs.nodejs-18_x;
         python3 = pkgs.python39;
         ocaml-ng = pkgs.ocaml-ng;
         rescript = pkgs.callPackage ./rescript.nix { 
-          inherit stdenv nodejs python3 ocaml-ng  rescript-compiler; 
+          inherit stdenv nodejs python3 ocaml-ng rescript-compiler; 
         };
-        NPM_CONFIG_PREFIX = toString ./npm_config_prefix;
       in
         {
           devShell = pkgs.mkShell {
@@ -41,9 +41,14 @@
               rm -rf "$modules/rescript"
               ln -s ${rescript} "$modules/rescript"
               npm install
+              # For the vscode plugin (do it after npm install!)
+              ln -s "${rescript}/rescript" "$modules/.bin/rescript"
               export PATH="${rescript}:$modules/.bin:$PATH"
-              export PATH="${NPM_CONFIG_PREFIX}/bin:$PATH"
             '';
+            NIX_LD_LIBRARY_PATH = lib.makeLibraryPath [
+              stdenv.cc.cc
+            ];
+            NIX_LD = lib.fileContents "${stdenv.cc}/nix-support/dynamic-linker";
           }; 
         }
     );
