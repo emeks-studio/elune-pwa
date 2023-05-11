@@ -36,14 +36,12 @@
               rescript
             ];
             shellHook = ''
-              modules="$PWD/node_modules"
-              mkdir -p "$modules"
-              rm -rf "$modules/rescript"
-              ln -s ${rescript} "$modules/rescript"
               npm install
-              # For the vscode plugin (do it after npm install!)
-              ln -s "${rescript}/rescript" "$modules/.bin/rescript"
-              export PATH="${rescript}:$modules/.bin:$PATH"
+              # Warning: Do it after npm install!
+              ln -s "${rescript}/rescript" "$PWD/node_modules/.bin/rescript"
+              ln -s ${rescript} "$PWD/node_modules/rescript"
+              export PATH="${rescript}:$PWD/node_modules/.bin:$PATH"
+              rescript build -with-deps
             '';
             NIX_LD_LIBRARY_PATH = lib.makeLibraryPath [
               stdenv.cc.cc
