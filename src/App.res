@@ -7,6 +7,7 @@ let make = () => {
   <div className="App">
       <header className="App-header">
       <p>{React.string("Elune PWA")}</p>
+      <AudioPlayer />
     </header>
   </div>
 };
