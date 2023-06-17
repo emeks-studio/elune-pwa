@@ -1,0 +1,15 @@
+.songsList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 2em;
+}
+
+.songItem {
+  cursor: pointer;
+}
+
+.songItem:hover {
+  color: red;
+}

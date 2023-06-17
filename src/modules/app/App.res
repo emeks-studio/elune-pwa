@@ -2,10 +2,19 @@
 
 @react.component
 let make = () => {
+  let (selectedSong, setSelectedSong) = React.useState(_ => None)
+
+  let pickSong = (song) => {
+    setSelectedSong(_ => Some(song))
+  } 
+
   <div className="App">
       <header className="App-header">
-      <p>{React.string("Elune PWA")}</p>
-      <AudioPlayer />
-    </header>
+        <p>{React.string("Elune PWA")}</p>
+      </header>
+      <div>
+        <PlayList selectSong={pickSong}/>
+        <AudioPlayer songToPlay={selectedSong}/>
+      </div>
   </div>
 };

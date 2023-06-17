@@ -1,3 +1,4 @@
+%%raw("import './AudioPlayer.css'")
 
 module AudioHtmlBindings = {
   @send external pause: Dom.element => unit = "pause"
@@ -13,17 +14,35 @@ let getCurrent = (audioRef: React.ref<Js.Nullable.t<Dom.element>>) : option<Dom.
   audioRef.current->Js.Nullable.toOption
 }
 
+let formatTime = (secs: int): string => {
+  let minutes : int = secs / 60;
+  let seconds : int = mod(secs, 60) / 1
+
+  let formattedMinutes = Belt.Int.toString(minutes);
+  let formattedSeconds = Belt.Int.toString(seconds);
+
+  if (formattedSeconds->String.length < 2) {
+    formattedMinutes ++ ":0" ++ formattedSeconds;
+  }else{
+    formattedMinutes ++ ":" ++ formattedSeconds;
+  }
+};
+
 module AudioControls = {
   @react.component
-  let make = (~audioRef: React.ref<Js.Nullable.t<Dom.element>>) => {
+  let make = (~audioRef: React.ref<Js.Nullable.t<Dom.element>>, ~song: PlayList.song) => {
     let (isPlaying, setIsPlaying) = React.useState(_ => false)
     let (pctPlayed, setPctPlayed) = React.useState(_ => "0")
+    let (duration, setDuration) = React.useState(_ => "00:00")
+    let (timer, setTimer) = React.useState(_ => "00:00")
+
     let pauseAudio = _ => {
       audioRef->getCurrent->Belt.Option.forEach(a => {
         a->AudioHtmlBindings.pause
         setIsPlaying(_prev => false)
       })
     }
+
     let playAudio = _ => {
       // Js.Console.log2("playAudio clicked", audioRef.current->Js.Nullable.toOption)
       audioRef->getCurrent->Belt.Option.forEach(a => {
@@ -32,25 +51,38 @@ module AudioControls = {
       })
     }
 
-    React.useEffect0(() => {
+    React.useEffect1(() => {
       let handleTimeUpdate = (a: Dom.element) => {
         let updateTime = a->AudioHtmlBindings.currentTime * 100 / a->AudioHtmlBindings.duration
         setPctPlayed(_ => updateTime->Belt.Int.toString)
+        setTimer(_ => a->AudioHtmlBindings.currentTime -> formatTime)
       }
 
+      let getDuration = () => {
+        audioRef->getCurrent->Belt.Option.forEach(a => setDuration(_ => a->AudioHtmlBindings.duration->formatTime))
+      }
+      
       let cb = () => 
         audioRef->getCurrent->Belt.Option.forEach(a => handleTimeUpdate(a))
       
       let cleanUp = () => 
         audioRef->getCurrent->Belt.Option.forEach(a => AudioHtmlBindings.removeEventListener(a, "timeupdate", cb))
+        audioRef->getCurrent->Belt.Option.forEach(a => AudioHtmlBindings.removeEventListener(a, "loadedmetadata", getDuration))
       
       audioRef->getCurrent->Belt.Option.forEach(a => AudioHtmlBindings.addEventListener(a, "timeupdate", cb))
+      audioRef->getCurrent->Belt.Option.forEach(a => AudioHtmlBindings.addEventListener(a, "loadedmetadata", getDuration))
+      setIsPlaying(_ => false)
       Some(cleanUp)
-    })
+    }, [song])
 
     <div>
       <div>
-        <progress value={pctPlayed} max="100" />
+        <div className="trackInfo">{React.string(`Now Playing: ${song.name} by: ${song.artist}`)}</div>
+        <div className="progressReproduction">
+          <div className="progressTimer">{React.string(timer)}</div>
+          <progress value={pctPlayed} max="100" />
+          <div className="progressTimer">{React.string(duration)}</div>
+        </div>
       </div>
       {isPlaying
         ? <button onClick=pauseAudio> {React.string("Pause")} </button>
@@ -77,19 +109,23 @@ module AudioControls = {
 module AudioTrack = {
   @react.component
   let make = (~audioRef: ReactDOM.domRef, ~trackUrl: string) => {
-    <audio src=trackUrl ref=audioRef />
+      <audio preload="metadata" src=trackUrl ref=audioRef />
   }
 }
 
 @react.component
-let make = () => {
-  let audioRef = React.useRef(Js.Nullable.null) 
-  let trackUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+let make = (~songToPlay: option<PlayList.song>) => {
+  let audioRef = React.useRef(Js.Nullable.null)
+
+  switch(songToPlay){
+    |Some(songToPlay) =>   <div>
+                            <AudioTrack audioRef={ReactDOM.Ref.domRef(audioRef)} trackUrl={songToPlay.url} />
+                            <AudioControls audioRef song={songToPlay} />
+                          </div>
+    |None => <div></div>
+  }
   
-  <div>
-    <AudioTrack audioRef={ReactDOM.Ref.domRef(audioRef)} trackUrl />
-    <AudioControls audioRef />
-  </div>
+
 }
 
 
