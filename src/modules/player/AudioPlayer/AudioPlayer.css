@@ -1,0 +1,18 @@
+.progressReproduction {
+  display: flex;
+  justify-content: center;
+}
+
+.trackInfo {
+  color: white;
+  padding-bottom: 1em;
+}
+
+.progressTimer {
+  padding-inline: 1em;
+  color: white;
+}
+
+.playerControls {
+  display: flex;
+}
