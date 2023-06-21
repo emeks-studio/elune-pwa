@@ -1,4 +1,5 @@
-%%raw("import './PlayList.css'")
+%%raw("import './Playlist.css'")
+
 
 type song = {
     name: string,
@@ -10,24 +11,8 @@ type songs = {
     songs: array<song>
 }
 
-@scope("JSON") @val external parseIntoMyData: string => songs = "parse"
-
-module PlayListSource = {
-    let getSongs = () => {
-        let playerSongs = parseIntoMyData(Songs.songs)
-        playerSongs.songs
-    };
-};
-
 @react.component
-    let make = (~selectSong: (song) => unit, ~selectedSong: option<song>) => {
-    let (songs: array<song>, setSongs) = React.useState( _prev => [])
-
-    React.useEffect0(() => {
-        let playListSongs = PlayListSource.getSongs()
-        setSongs(_prev => playListSongs)
-        Some(() => setSongs(_prev => []))
-    });
+    let make = (~songs: array<song>, ~selectSong: (song) => unit, ~selectedSong: option<song>) => {
 
     let getSongSelected = () : string => {
         switch(selectedSong){
