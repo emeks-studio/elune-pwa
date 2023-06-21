@@ -1,5 +1,4 @@
 %%raw("import './PlayList.css'")
-open ReactEvent;
 
 type song = {
     name: string,
@@ -21,20 +20,29 @@ module PlayListSource = {
 };
 
 @react.component
-    let make = (~selectSong) => {
+    let make = (~selectSong: (song) => unit, ~selectedSong: option<song>) => {
     let (songs: array<song>, setSongs) = React.useState( _prev => [])
 
     React.useEffect0(() => {
         let playListSongs = PlayListSource.getSongs()
         setSongs(_prev => playListSongs)
         Some(() => setSongs(_prev => []))
-    })
+    });
+
+    let getSongSelected = () : string => {
+        switch(selectedSong){
+            | Some(selectedSong) => selectedSong.name
+            | None => ""
+        }
+    }
 
     <div className="songsList">
         <h3>{React.string("Songs:")}</h3>
         {
             songs->Belt.Array.map((song) => {
-                <a key={song.name} className="songItem" onClick={_ => selectSong(song)}> 
+                <a key={song.name} 
+                    className={`songItem ++ ${song.name == getSongSelected() ? "active" : ""}`} 
+                    onClick={_ => selectSong(song)}> 
                     { React.string(`${song.name} - ${song.artist}`) } 
                 </a>
                 }

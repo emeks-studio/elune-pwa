@@ -3,6 +3,7 @@
 module AudioHtmlBindings = {
   @send external pause: Dom.element => unit = "pause"
   @send external play: Dom.element => unit = "play"
+  @set external setCurrentTime: (Dom.element, int) => unit = "currentTime"
   @get external currentTime: Dom.element => int = "currentTime"
   @get external duration: Dom.element => int = "duration"
   @get external waiting: Dom.element => bool = "waiting"
@@ -51,6 +52,16 @@ module AudioControls = {
       })
     }
 
+    let stopAudio = _ => {
+      audioRef->getCurrent->Belt.Option.forEach(a => {
+        a->AudioHtmlBindings.pause
+        AudioHtmlBindings.setCurrentTime(a, 0)
+      })
+      setIsPlaying(_prev => false)
+      setPctPlayed(_prev => "0")
+      setTimer(_prev => "00:00")
+    }
+
     React.useEffect1(() => {
       let handleTimeUpdate = (a: Dom.element) => {
         let updateTime = a->AudioHtmlBindings.currentTime * 100 / a->AudioHtmlBindings.duration
@@ -84,24 +95,27 @@ module AudioControls = {
           <div className="progressTimer">{React.string(duration)}</div>
         </div>
       </div>
-      {isPlaying
-        ? <button onClick=pauseAudio> {React.string("Pause")} </button>
-        : <>
-            <button onClick=playAudio> {React.string("Play")} </button>
-            <div>
-              {switch (audioRef->getCurrent) {
-              | None => React.null
-              | Some(a) => 
-                // Not sure if is worthy!
-                if (a->AudioHtmlBindings.waiting) {
-                  <div> {React.string("Loading...")} </div>
-                } else {
-                React.null
-                }
-              }}
-            </div>
-          </>
-      }
+      <div className="Playercontrols">
+        <button onClick=stopAudio> {React.string("Stop")} </button>
+        {isPlaying
+          ? <button onClick=pauseAudio> {React.string("Pause")} </button>
+          : <>
+                <button onClick=playAudio> {React.string("Play")} </button>
+              <div>
+                {switch (audioRef->getCurrent) {
+                | None => React.null
+                | Some(a) => 
+                  // Not sure if is worthy!
+                  if (a->AudioHtmlBindings.waiting) {
+                    <div> {React.string("Loading...")} </div>
+                  } else {
+                  React.null
+                  }
+                }}
+              </div>
+            </>
+        }
+      </div>
     </div>
   }
 }

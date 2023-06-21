@@ -12,3 +12,7 @@
   padding-inline: 1em;
   color: white;
 }
+
+.playerControls {
+  display: flex;
+}

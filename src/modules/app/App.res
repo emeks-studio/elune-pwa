@@ -13,7 +13,7 @@ let make = () => {
         <p>{React.string("Elune PWA")}</p>
       </header>
       <div>
-        <PlayList selectSong={pickSong}/>
+        <PlayList selectSong={pickSong} selectedSong={selectedSong}/>
         <AudioPlayer songToPlay={selectedSong}/>
       </div>
   </div>

@@ -13,3 +13,7 @@
 .songItem:hover {
   color: red;
 }
+
+.active {
+  color: yellow;
+}
