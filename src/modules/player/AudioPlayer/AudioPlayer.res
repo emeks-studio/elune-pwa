@@ -54,14 +54,19 @@ module MysticImage = {
 
 module AudioControls = {
   @react.component
-  let make = (~audioRef: React.ref<Js.Nullable.t<Dom.element>>, ~song: Playlist.song) => {
+  let make = (
+    ~audioRef: React.ref<Js.Nullable.t<Dom.element>>,
+    ~song: Playlist.song,
+    ~nextSong: unit => unit,
+    ~prevSong: unit => unit,
+  ) => {
     let (isPlaying, setIsPlaying) = React.useState(_ => false)
     let (pctPlayed, setPctPlayed) = React.useState(_ => "0")
     let (duration, setDuration) = React.useState(_ => "00:00")
     let (timer, setTimer) = React.useState(_ => "00:00")
     let (waiting, setWaiting) = React.useState(_ => false)
 
-    let pauseAudio = _ => {
+    let pauseAudio = (_): unit => {
       audioRef
       ->getCurrent
       ->Belt.Option.forEach(a => {
@@ -70,7 +75,7 @@ module AudioControls = {
       })
     }
 
-    let playAudio = _ => {
+    let playAudio = (_): unit => {
       // Js.Console.log2("playAudio clicked", audioRef.current->Js.Nullable.toOption)
       audioRef
       ->getCurrent
@@ -80,16 +85,30 @@ module AudioControls = {
       })
     }
 
-    let stopAudio = _ => {
+    let resetSong = (): unit => {
+      setIsPlaying(_prev => false)
+      setPctPlayed(_prev => "0")
+      setTimer(_prev => "00:00")
+    }
+
+    let stopAudio = (_): unit => {
       audioRef
       ->getCurrent
       ->Belt.Option.forEach(a => {
         a->AudioHtmlBindings.pause
         AudioHtmlBindings.setCurrentTime(a, 0)
       })
-      setIsPlaying(_prev => false)
-      setPctPlayed(_prev => "0")
-      setTimer(_prev => "00:00")
+      resetSong()
+    }
+
+    let nextAudio = (_): unit => {
+      nextSong()
+      resetSong()
+    }
+
+    let prevAudio = (_): unit => {
+      prevSong()
+      resetSong()
     }
 
     React.useEffect1(() => {
@@ -142,14 +161,16 @@ module AudioControls = {
           <div className="progressTimer"> {React.string(duration)} </div>
         </div>
       </div>
-      <div className="Playercontrols">
+      <div className="playerControls">
+        <button onClick={prevAudio}> {React.string("<<")} </button>
         <button onClick={stopAudio}> {React.string("Stop")} </button>
         {switch isPlaying {
         | true => <button onClick={pauseAudio}> {React.string("Pause")} </button>
         | false => <button onClick={playAudio}> {React.string("Play")} </button>
         }}
-        <MysticImage loading={waiting} playing={isPlaying}/>
+        <button onClick={nextAudio}> {React.string(">>")} </button>
       </div>
+      <MysticImage loading={waiting} playing={isPlaying} />
     </div>
   }
 }
@@ -164,6 +185,7 @@ module AudioTrack = {
 @react.component
 let make = () => {
   let (songs: array<Playlist.song>, setSongs) = React.useState(_prev => [])
+  let (selectedSongId: int, setSelectedSongId) = React.useState(_prev => -1)
   let (selectedSong, setSelectedSong) = React.useState(_ => None)
   let audioRef = React.useRef(Js.Nullable.null)
 
@@ -173,17 +195,43 @@ let make = () => {
     Some(() => setSongs(_prev => []))
   })
 
-  let pickSong = song => {
+  React.useEffect1(() => {
+    if Array.length(songs) > 0 {
+      let newSong: Playlist.song = songs[selectedSongId]
+      Some(() => setSelectedSong(_ => Some(newSong)))
+    } else {
+      Some(() => ())
+    }
+  }, [selectedSongId])
+
+  let pickSong = (song: Playlist.song, songId: int): unit => {
     setSelectedSong(_ => Some(song))
+    setSelectedSongId(_ => songId)
+  }
+
+  let nextSong = (): unit => {
+    if selectedSongId == Array.length(songs) - 1 {
+      setSelectedSongId(_ => 0)
+    } else {
+      setSelectedSongId(_ => selectedSongId + 1)
+    }
+  }
+
+  let prevSong = (): unit => {
+    if selectedSongId == 0 {
+      setSelectedSongId(_ => Array.length(songs) - 1)
+    } else {
+      setSelectedSongId(_ => selectedSongId - 1)
+    }
   }
 
   <div>
-    <Playlist songs={songs} selectSong={pickSong} selectedSong={selectedSong} />
+    <Playlist songs={songs} selectSong={pickSong} selectedSong={selectedSongId} />
     {switch selectedSong {
     | Some(songSelected) =>
       <div>
         <AudioTrack audioRef={ReactDOM.Ref.domRef(audioRef)} trackUrl={songSelected.url} />
-        <AudioControls audioRef song={songSelected} />
+        <AudioControls audioRef song={songSelected} nextSong={nextSong} prevSong={prevSong} />
       </div>
     | None => <div />
     }}

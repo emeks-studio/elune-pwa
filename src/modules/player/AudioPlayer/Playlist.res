@@ -12,22 +12,15 @@ type songs = {
 }
 
 @react.component
-    let make = (~songs: array<song>, ~selectSong: (song) => unit, ~selectedSong: option<song>) => {
-
-    let getSongSelected = () : string => {
-        switch(selectedSong){
-            | Some(selectedSong) => selectedSong.name
-            | None => ""
-        }
-    }
+    let make = (~songs: array<song>, ~selectSong: (song, int) => unit, ~selectedSong: int) => {
 
     <div className="songsList">
         <h3>{React.string("Songs:")}</h3>
         {
-            songs->Belt.Array.map((song) => {
-                <a key={song.name} 
-                    className={`songItem ++ ${song.name == getSongSelected() ? "active" : ""}`} 
-                    onClick={_ => selectSong(song)}> 
+            songs->Belt.Array.mapWithIndex((idx, song) => {
+                <a key={Belt.Int.toString(idx)}
+                    className={`songItem ++ ${idx == selectedSong ? "active" : ""}`} 
+                    onClick={_ => selectSong(song, idx)}> 
                     { React.string(`${song.name} - ${song.artist}`) } 
                 </a>
                 }
