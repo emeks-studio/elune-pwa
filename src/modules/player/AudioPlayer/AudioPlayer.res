@@ -200,9 +200,6 @@ module AudioControls = {
 module AudioTrack = {
   @react.component
   let make = (~audioRef: ReactDOM.domRef, ~trackUrl: string) => {
-    React.useEffect0(() => {
-      Some(() => ())
-    })
     <audio preload="metadata" src=trackUrl ref=audioRef />
   }
 }
@@ -210,7 +207,7 @@ module AudioTrack = {
 @react.component
 let make = () => {
   let (songs: array<Playlist.song>, setSongs) = React.useState(_prev => [])
-  let (selectedSongId: int, setSelectedSongId) = React.useState(_prev => -1)
+  let (selectedSongId: int, setSelectedSongId) = React.useState(_prev => 0)
   let (selectedSong, setSelectedSong) = React.useState(_ => None)
   let audioRef = React.useRef(Js.Nullable.null)
 
@@ -223,10 +220,9 @@ let make = () => {
   React.useEffect1(() => {
     if Array.length(songs) > 0 {
       let newSong: Playlist.song = songs[selectedSongId]
-      Some(() => setSelectedSong(_ => Some(newSong)))
-    } else {
-      Some(() => ())
+      setSelectedSong(_ => Some(newSong))
     }
+  None
   }, [selectedSongId])
 
   let pickSong = (song: Playlist.song, songId: int): unit => {
@@ -238,7 +234,7 @@ let make = () => {
     if selectedSongId == Array.length(songs) - 1 {
       setSelectedSongId(_ => 0)
     } else {
-      setSelectedSongId(_ => selectedSongId + 1)
+      setSelectedSongId(id => id + 1)
     }
   }
 
@@ -246,7 +242,7 @@ let make = () => {
     if selectedSongId == 0 {
       setSelectedSongId(_ => Array.length(songs) - 1)
     } else {
-      setSelectedSongId(_ => selectedSongId - 1)
+      setSelectedSongId(id => id - 1)
     }
   }
 
