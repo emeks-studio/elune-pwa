@@ -8,7 +8,6 @@ module AudioHtmlBindings = {
   @send external play: Dom.element => unit = "play"
   @set external setCurrentTime: (Dom.element, int) => unit = "currentTime"
   @get external currentTime: Dom.element => int = "currentTime"
-  @get external isReadyToPlay: Dom.element => int = "readyState"
   @get external duration: Dom.element => int = "duration"
   @send external addEventListener: (Dom.element, string, unit => unit) => unit = "addEventListener"
   @send
