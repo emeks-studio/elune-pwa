@@ -8,6 +8,7 @@ module AudioHtmlBindings = {
   @send external play: Dom.element => unit = "play"
   @set external setCurrentTime: (Dom.element, int) => unit = "currentTime"
   @get external currentTime: Dom.element => int = "currentTime"
+  @get external isReadyToPlay: Dom.element => int = "readyState"
   @get external duration: Dom.element => int = "duration"
   @send external addEventListener: (Dom.element, string, unit => unit) => unit = "addEventListener"
   @send
@@ -65,6 +66,7 @@ module AudioControls = {
     let (duration, setDuration) = React.useState(_ => "00:00")
     let (timer, setTimer) = React.useState(_ => "00:00")
     let (waiting, setWaiting) = React.useState(_ => false)
+    let (isReady, setIsReady) = React.useState(_ => false)
 
     let pauseAudio = (_): unit => {
       audioRef
@@ -76,13 +78,14 @@ module AudioControls = {
     }
 
     let playAudio = (_): unit => {
-      // Js.Console.log2("playAudio clicked", audioRef.current->Js.Nullable.toOption)
-      audioRef
-      ->getCurrent
-      ->Belt.Option.forEach(a => {
-        a->AudioHtmlBindings.play
-        setIsPlaying(_prev => true)
-      })
+      if isReady {
+        audioRef
+        ->getCurrent
+        ->Belt.Option.forEach(a => {
+          a->AudioHtmlBindings.play
+          setIsPlaying(_prev => true)
+        })
+      }
     }
 
     let resetSong = (): unit => {
@@ -103,15 +106,33 @@ module AudioControls = {
 
     let nextAudio = (_): unit => {
       nextSong()
-      resetSong()
-    }
-
-    let prevAudio = (_): unit => {
-      prevSong()
-      resetSong()
+      stopAudio()
     }
 
     React.useEffect1(() => {
+      if isReady {
+        playAudio()
+      }
+      Some(() => ())
+    }, [isReady])
+
+    let prevAudio = (_): unit => {
+      prevSong()
+      stopAudio()
+    }
+
+    React.useEffect1(() => {
+      audioRef
+      ->getCurrent
+      ->Belt.Option.forEach(a =>
+        AudioHtmlBindings.addEventListener(a, "canplay", () => setIsReady(_ => true))
+      )
+      audioRef
+      ->getCurrent
+      ->Belt.Option.forEach(a =>
+        AudioHtmlBindings.addEventListener(a, "loadstart", () => setIsReady(_ => false))
+      )
+
       setWaiting(_ => true)
       let handleTimeUpdate = (a: Dom.element) => {
         let updateTime = a->AudioHtmlBindings.currentTime * 100 / a->AudioHtmlBindings.duration
@@ -162,13 +183,14 @@ module AudioControls = {
         </div>
       </div>
       <div className="playerControls">
-        <button onClick={prevAudio}> {React.string("<<")} </button>
-        <button onClick={stopAudio}> {React.string("Stop")} </button>
+        <button onClick={prevAudio} disabled={!isReady}> {React.string("<<")} </button>
+        <button onClick={stopAudio} disabled={!isReady}> {React.string("Stop")} </button>
         {switch isPlaying {
-        | true => <button onClick={pauseAudio}> {React.string("Pause")} </button>
-        | false => <button onClick={playAudio}> {React.string("Play")} </button>
+        | true =>
+          <button onClick={pauseAudio} disabled={!isReady}> {React.string("Pause")} </button>
+        | false => <button onClick={playAudio} disabled={!isReady}> {React.string("Play")} </button>
         }}
-        <button onClick={nextAudio}> {React.string(">>")} </button>
+        <button onClick={nextAudio} disabled={!isReady}> {React.string(">>")} </button>
       </div>
       <MysticImage loading={waiting} playing={isPlaying} />
     </div>
@@ -178,6 +200,9 @@ module AudioControls = {
 module AudioTrack = {
   @react.component
   let make = (~audioRef: ReactDOM.domRef, ~trackUrl: string) => {
+    React.useEffect0(() => {
+      Some(() => ())
+    })
     <audio preload="metadata" src=trackUrl ref=audioRef />
   }
 }
@@ -230,6 +255,7 @@ let make = () => {
     {switch selectedSong {
     | Some(songSelected) =>
       <div>
+        <div> {React.string(songSelected.name)} </div>
         <AudioTrack audioRef={ReactDOM.Ref.domRef(audioRef)} trackUrl={songSelected.url} />
         <AudioControls audioRef song={songSelected} nextSong={nextSong} prevSong={prevSong} />
       </div>
