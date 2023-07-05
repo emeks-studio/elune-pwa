@@ -221,7 +221,7 @@ let make = () => {
       let newSong: Playlist.song = songs[selectedSongId]
       setSelectedSong(_ => Some(newSong))
     }
-  None
+    None
   }, [selectedSongId])
 
   let pickSong = (song: Playlist.song, songId: int): unit => {
@@ -245,8 +245,24 @@ let make = () => {
     }
   }
 
+  let shuffler = (): unit => {
+    let shuffledSongs: array<Playlist.song> = Belt.Array.shuffle(songs)
+    setSongs(_ => shuffledSongs)
+    switch selectedSong {
+    | Some(songSelected) =>
+      switch Belt.Array.getIndexBy(shuffledSongs, song => song.url == songSelected.url) {
+      | Some(songId) => setSelectedSongId(_ => songId)
+      | None => ()
+      }
+    | None => ()
+    }
+    ()
+  }
+
   <div>
-    <Playlist songs={songs} selectSong={pickSong} selectedSong={selectedSongId} />
+    <Playlist
+      songs={songs} selectSong={pickSong} selectedSong={selectedSongId} shuffler={shuffler}
+    />
     {switch selectedSong {
     | Some(songSelected) =>
       <div>

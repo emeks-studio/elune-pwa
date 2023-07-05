@@ -17,3 +17,7 @@
 .active {
   color: yellow;
 }
+
+.shuffleButton {
+  margin-top: 1em;
+}
